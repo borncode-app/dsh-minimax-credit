@@ -12,6 +12,21 @@
 
 ---
 
+## Where the sign-in code lives now
+
+The MiniMax Code grant reader — reading `~/.minimax/auth`, refreshing it under
+the app's own `auth.lock`, and the token/generation bookkeeping — moved to
+**[`dsh-minimax-auth`](https://github.com/borncode-app/dsh-minimax-auth)**.
+
+This plugin and `dsh-minimax-checkin` both import it, so one refresh path writes
+the grant instead of two. The dependency is pinned to a commit; bump
+`@local/dsh-minimax-auth` in `package.json` to take a newer one.
+
+Nothing else moved: this repository still owns the proxy, the quota probe, the
+credit and wallet reads, and the composer chip. The `TokenSource` export remains
+here as a subclass that supplies this plugin's error class and
+`MINIMAX_CREDIT_*` codes.
+
 ## The problem
 
 A MiniMax Token Plan API key (`sk-cp-…`) works against `https://api.minimax.io/anthropic` until the plan
@@ -59,11 +74,14 @@ It serves a **local Anthropic-Messages proxy** and points the `minimax-api` rout
 | MiniMax Code | Signed in on the **same machine** — the credit fallback has no other token source |
 | Env | `MINIMAX_API_KEY` for the plan side |
 | Port | `45677` free (configurable) |
+| Peer | [`dsh-minimax-auth`](../dsh-minimax-auth) — the shared grant reader (a `link:` dependency, not a bundle) |
 
 ## Install
 
 ```bash
 git clone https://github.com/borncode-app/dsh-minimax-credit.git dsh-minimax-credit
+git clone https://github.com/borncode-app/dsh-minimax-auth.git dsh-minimax-auth
+cd dsh-minimax-credit && pnpm install
 ```
 
 Then:
@@ -134,7 +152,7 @@ llm-pi-ai route "minimax-api"  (baseURL → 127.0.0.1:45677/anthropic)
 
 | file | role |
 |---|---|
-| `index.js` | proxy, quota probe, OAuth token source, credit/wallet reads, status route |
+| `index.js` | proxy, quota probe, credit/wallet reads, status route; the grant reader comes from `dsh-minimax-auth` |
 | `client.js` | the credits chip |
 | `cordis.patch.yml` | the bundle patch with the row and its defaults |
 | `locale/{en,th,zh}.json` | UI strings |

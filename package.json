@@ -39,7 +39,8 @@
     "README.md"
   ],
   "dependencies": {
-    "@deepseek-ai/schemastery": "~3.19.0"
+    "@deepseek-ai/schemastery": "~3.19.0",
+    "@local/dsh-minimax-auth": "github:borncode-app/dsh-minimax-auth#b187c15ece564e1e7a81512d857853ee711eda79"
   },
   "dsh": {
     "bundle": {

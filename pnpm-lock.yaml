@@ -11,6 +11,9 @@ importers:
       '@deepseek-ai/schemastery':
         specifier: ~3.19.0
         version: 3.19.0
+      '@local/dsh-minimax-auth':
+        specifier: github:borncode-app/dsh-minimax-auth#b187c15ece564e1e7a81512d857853ee711eda79
+        version: https://codeload.github.com/borncode-app/dsh-minimax-auth/tar.gz/b187c15ece564e1e7a81512d857853ee711eda79
 
 packages:
 
@@ -19,6 +22,10 @@ packages:
 
   '@deepseek-ai/schemastery@3.19.0':
     resolution: {integrity: sha512-bDXoYQa7ghAhmdYD5VPlzKxEzJV/aKkz5l4V5h1u06z8GAPN1ROewSjvR9WiXhpa52E9fng8lpH5QdCRIQgnyQ==}
+
+  '@local/dsh-minimax-auth@https://codeload.github.com/borncode-app/dsh-minimax-auth/tar.gz/b187c15ece564e1e7a81512d857853ee711eda79':
+    resolution: {tarball: https://codeload.github.com/borncode-app/dsh-minimax-auth/tar.gz/b187c15ece564e1e7a81512d857853ee711eda79}
+    version: 1.0.0
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -31,5 +38,7 @@ snapshots:
     dependencies:
       '@deepseek-ai/cosmokit': 1.9.0
       '@standard-schema/spec': 1.1.0
+
+  '@local/dsh-minimax-auth@https://codeload.github.com/borncode-app/dsh-minimax-auth/tar.gz/b187c15ece564e1e7a81512d857853ee711eda79': {}
 
   '@standard-schema/spec@1.1.0': {}
