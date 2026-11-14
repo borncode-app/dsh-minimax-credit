@@ -12,6 +12,18 @@
 
 ---
 
+## Where the one-entry kit lives
+
+This plugin, `dsh-minimax-checkin`, `dsh-minimax-model-sync`, `dsh-model-quota`
+and `dsh-minimax-bridge` are also published as one bundle:
+**[`dsh-minimax-kit`](https://github.com/borncode-app/dsh-minimax-kit)**.
+
+Install the kit instead if you want the whole MiniMax set from a single
+**Plugins** entry. It ships these same packages as separate rows, so the code
+here is unchanged and each part keeps its own switch — this repository stays
+the home of the proxy, the quota probe, the credit and wallet reads, and the
+composer chip.
+
 ## Where the sign-in code lives now
 
 The MiniMax Code grant reader — reading `~/.minimax/auth`, refreshing it under
