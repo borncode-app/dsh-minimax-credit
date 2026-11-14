@@ -4,6 +4,16 @@ window.__ModuleLoader__.load({
     const React = require('react')
     /** Must match the Host row's `statusPath`. */
     const ENDPOINT = '/plugins/minimax-credit/status'
+    /**
+     * Fallback readings, tried in order when the same-origin route answers
+     * nothing: the proxy's own status route, which the Host serves with a
+     * permissive CORS header, so the chip still works before the Host row has
+     * been re-applied.
+     */
+    const FALLBACK_ENDPOINTS = [
+      'http://127.0.0.1:45677/status',
+      'http://127.0.0.1:45677/health',
+    ]
     /** How often the browser re-reads the proxy state. */
     const POLL_MS = 30000
 
@@ -26,6 +36,8 @@ window.__ModuleLoader__.load({
         'credit.planRemaining': '{percent}% left',
         'credit.planSpent': 'spent',
         'credit.resets': 'Resets in',
+        'credit.weeklyPlan': 'Weekly window',
+        'credit.weeklyResets': 'Weekly resets in',
         'credit.zero': 'No credit balance: if the plan is also spent, requests will fail until you top up.',
         'credit.signIn': 'Open MiniMax Code and sign in again to keep credit fallback working.',
       },
@@ -46,6 +58,8 @@ window.__ModuleLoader__.load({
         'credit.planRemaining': 'เหลือ {percent}%',
         'credit.planSpent': 'หมดแล้ว',
         'credit.resets': 'รีเซ็ตใน',
+        'credit.weeklyPlan': 'หน้าต่างสัปดาห์',
+        'credit.weeklyResets': 'รีเซ็ตรายสัปดาห์ใน',
         'credit.zero': 'เครดิตคงเหลือ 0 — ถ้าแพ็กเกจหมดด้วย คำขอจะไม่ผ่านจนกว่าจะเติมเครดิต',
         'credit.signIn': 'เปิด MiniMax Code แล้วลงชื่อเข้าใช้อีกครั้ง เพื่อให้ใช้เครดิตต่อได้',
       },
@@ -66,6 +80,8 @@ window.__ModuleLoader__.load({
         'credit.planRemaining': '剩余 {percent}%',
         'credit.planSpent': '已用完',
         'credit.resets': '重置',
+        'credit.weeklyPlan': '每周窗口',
+        'credit.weeklyResets': '每周重置',
         'credit.zero': '额度余额为 0：套餐也用完时将无法继续请求，需先充值。',
         'credit.signIn': '请打开 MiniMax Code 重新登录，以继续使用额度回退。',
       },
@@ -129,16 +145,25 @@ window.__ModuleLoader__.load({
         React.useEffect(() => {
           let cancelled = false
           let timer
-          const load = async () => {
-            try {
-              const response = await fetch(ENDPOINT, { headers: { accept: 'application/json' } })
-              if (response.ok) {
+          /** One reading from the first endpoint that answers with a status. */
+          const read = async (endpoints) => {
+            for (const endpoint of endpoints) {
+              try {
+                const response = await fetch(endpoint, { headers: { accept: 'application/json' } })
+                if (!response.ok) continue
                 const body = await response.json()
-                if (!cancelled) setSnapshot(body)
+                if (body !== undefined && body !== null && typeof body === 'object') return body
+              } catch {
+                /* try the next endpoint */
               }
-            } catch {
-              /* a transient failure keeps the previous reading */
             }
+            return undefined
+          }
+          const load = async () => {
+            const body = await read([ENDPOINT])
+            const fallback = body === undefined ? await read(FALLBACK_ENDPOINTS) : undefined
+            const reading = body ?? fallback
+            if (reading !== undefined && !cancelled) setSnapshot(reading)
             if (!cancelled) timer = setTimeout(() => void load(), POLL_MS)
           }
           void load()
@@ -163,6 +188,13 @@ window.__ModuleLoader__.load({
         if (plan !== null && plan !== undefined) {
           lines.push(`${t('credit.plan')}: ${typeof plan.percent === 'number' ? t('credit.planRemaining', { percent: plan.percent }) : t('credit.planSpent')}`)
           if (plan.resetIn !== undefined) lines.push(`${t('credit.resets')}: ${plan.resetIn}`)
+          // The weekly window is a second, independent cap: a 0% weekly reading
+          // means the plan is spent even while the short window still shows
+          // quota, so both numbers belong in the tooltip.
+          if (typeof plan.weeklyPercent === 'number') {
+            lines.push(`${t('credit.weeklyPlan')}: ${t('credit.planRemaining', { percent: plan.weeklyPercent })}`)
+          }
+          if (plan.weeklyResetIn !== undefined) lines.push(`${t('credit.weeklyResets')}: ${plan.weeklyResetIn}`)
         }
         if (creditMode) lines.push(t('credit.tooltip'))
         if (known) {

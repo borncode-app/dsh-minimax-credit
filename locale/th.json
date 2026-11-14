@@ -19,6 +19,8 @@
   "credit.planRemaining": "เหลือ {percent}%",
   "credit.planSpent": "หมดแล้ว",
   "credit.resets": "รีเซ็ตใน",
+  "credit.weeklyPlan": "หน้าต่างสัปดาห์",
+  "credit.weeklyResets": "รีเซ็ตรายสัปดาห์ใน",
   "credit.zero": "เครดิตคงเหลือ 0 — ถ้าแพ็กเกจหมดด้วย คำขอจะไม่ผ่านจนกว่าจะเติมเครดิต",
   "credit.signIn": "เปิด MiniMax Code แล้วลงชื่อเข้าใช้อีกครั้ง เพื่อให้ใช้เครดิตต่อได้"
 }

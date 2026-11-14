@@ -5,6 +5,17 @@ import { mkdir, readFile, rename, rmdir, stat, unlink, utimes, writeFile } from 
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 
+/**
+ * Services this plugin waits for before it applies.
+ *
+ * The status route is served by the Web GUI's own server, so the plugin must
+ * not apply before that service exists: without this declaration the route
+ * was registered against a server that was not there yet, the Web GUI answered
+ * 404 for `/plugins/minimax-credit/status`, and the credits chip never
+ * rendered.
+ */
+export const inject = ['webServer']
+
 /** Anthropic Messages compatibility paths this proxy serves. */
 const MESSAGES_PATH = '/v1/messages'
 const MODELS_PATH = '/v1/models'
@@ -1102,9 +1113,7 @@ export function apply(ctx, config) {
   }, 'minimax-credit: inference proxy')
 
   ctx.effect(() => {
-    const webServer = ctx.get('webServer')
-    if (webServer === undefined) return () => {}
-    const dispose = webServer.register({
+    const dispose = ctx.webServer.register({
       kind: 'exact',
       path: settings.statusPath,
       handler: (req, res) => {

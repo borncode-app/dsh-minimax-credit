@@ -19,6 +19,8 @@
   "credit.planRemaining": "{percent}% left",
   "credit.planSpent": "spent",
   "credit.resets": "Resets in",
+  "credit.weeklyPlan": "Weekly window",
+  "credit.weeklyResets": "Weekly resets in",
   "credit.zero": "No credit balance: if the plan is also spent, requests will fail until you top up.",
   "credit.signIn": "Open MiniMax Code and sign in again to keep credit fallback working."
 }

@@ -19,6 +19,8 @@
   "credit.planRemaining": "剩余 {percent}%",
   "credit.planSpent": "已用完",
   "credit.resets": "重置",
+  "credit.weeklyPlan": "每周窗口",
+  "credit.weeklyResets": "每周重置",
   "credit.zero": "额度余额为 0：套餐也用完时将无法继续请求，需先充值。",
   "credit.signIn": "请打开 MiniMax Code 重新登录，以继续使用额度回退。"
 }

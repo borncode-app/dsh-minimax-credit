@@ -389,6 +389,38 @@ await check('unavailable MiniMax sign-in answers 503 with guidance', async () =>
   } finally { await proxy.close() }
 })
 
+// ── 12. the weekly window is a second cap on the plan ───────────────────────
+await check('a zero weekly reading marks the plan spent', async () => {
+  const { PlanQuota } = await import('./index.js')
+  const readingOf = async (windowPercent, weeklyPercent) => {
+    const quota = new PlanQuota({
+      url: 'https://plan.test/coding_plan/remains',
+      cacheMs: 60000,
+      fetchImpl: async () => json({
+        model_remains: [{
+          model_name: 'general',
+          current_interval_remaining_percent: windowPercent,
+          current_weekly_remaining_percent: weeklyPercent,
+          remains_time: 60000,
+          weekly_remains_time: 600000,
+        }],
+      }),
+    })
+    return await quota.check('sk-cp-test')
+  }
+  // The short window still has quota, but the weekly cap is spent: the plan
+  // endpoint refuses, so the plugin must count this as an exhausted plan.
+  const weekly = await readingOf(40, 0)
+  assert.equal(weekly.exhausted, true)
+  assert.equal(weekly.percent, 40)
+  assert.equal(weekly.weeklyPercent, 0)
+  const spent = await readingOf(0, 55)
+  assert.equal(spent.exhausted, true)
+  const healthy = await readingOf(40, 55)
+  assert.equal(healthy.exhausted, false)
+  assert.equal(healthy.weeklyPercent, 55)
+})
+
 const failed = checks.filter(entry => !entry.ok)
 console.log(`\n${checks.length - failed.length}/${checks.length} checks passed`)
 if (failed.length > 0) process.exitCode = 1
